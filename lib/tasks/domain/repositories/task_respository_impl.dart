@@ -48,6 +48,20 @@ class TaskRespositoryImpl implements TaskRepository {
     if (response.statusCode == 201) {
       return response.body;
     }
-    throw Exception("Error al agregar tareas");
+    throw Exception("Error al agregar tarea");
+  }
+
+  @override
+  Future<dynamic> deleteTask(int idtasks) async {
+    String tasksPath = "/vdev/tasks-challenge/tasks/$idtasks";
+
+    final uri = Uri.https(baseUrl, tasksPath, {"token": "lgrsflutterdev2026"});
+
+    final response = await client.delete(uri, headers: _headers);
+
+    if (response.statusCode == 201) {
+      return response.body;
+    }
+    throw Exception("Error al eliminar tarea");
   }
 }

@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:gestion_tareas/tasks/presentation/screens/new_task_form_screen.dart';
 import 'package:provider/provider.dart';
@@ -65,12 +67,13 @@ class _TaskListScreenState extends State<TaskListScreen> {
                         color: Colors.black38,
                         blurRadius: 8,
                         spreadRadius: 1.5,
-                        offset: Offset(0, 4),
+                        offset: Offset(0, 2),
                       ),
                     ],
                   ),
                 ),
               ),
+              SizedBox(height: 10),
               Flexible(
                 flex: 4,
                 child: ListView.separated(
@@ -78,13 +81,79 @@ class _TaskListScreenState extends State<TaskListScreen> {
                   itemCount: provider.tasks.length,
                   itemBuilder: (context, index) {
                     final task = provider.tasks[index];
-                    return ListTile(
-                      title: Text(task.title),
-                      selectedColor: Colors.red,
-                      focusColor: Colors.amber,
-                      onTap: () {
-                        print(task.id);
-                      },
+                    return Container(
+                      margin: EdgeInsets.symmetric(horizontal: 10),
+                      decoration: BoxDecoration(
+                        color: task.isCompleted == 1
+                            ? const Color.fromARGB(255, 204, 244, 205)
+                            : Colors.white,
+                        border: Border.all(
+                          color: const Color.fromARGB(255, 74, 83, 90),
+                          width: 1,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: ListTile(
+                        title: Text(task.title),
+                        selectedColor: Colors.red,
+                        focusColor: Colors.amber,
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: Icon(
+                                task.isCompleted == 1
+                                    ? Icons.check_circle
+                                    : Icons.radio_button_unchecked,
+                                color: task.isCompleted == 1
+                                    ? Colors.green
+                                    : Colors.grey,
+                              ),
+                              onPressed: () {},
+                            ),
+                            IconButton(
+                              onPressed: () {},
+                              icon: Icon(Icons.edit, color: Colors.blue),
+                            ),
+                            IconButton(
+                              onPressed: () async {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: Text("Delete task"),
+                                    content: Text(
+                                      "Are you sure you want to delete this task?",
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(),
+                                        child: Text("Cancel"),
+                                      ),
+                                      TextButton(
+                                        onPressed: () async {
+                                          await provider.deleteTaskId(task.id);
+                                          Navigator.of(context).pop();
+
+                                          if (!mounted) return;
+                                          context
+                                              .read<TaskProvider>()
+                                              .fetchTasks();
+                                        },
+                                        child: Text("Delete"),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                              icon: Icon(Icons.delete, color: Colors.red),
+                            ),
+                          ],
+                        ),
+                        onTap: () {
+                          print(task.id);
+                        },
+                      ),
                     );
                   },
                 ),
@@ -107,7 +176,6 @@ class _TaskListScreenState extends State<TaskListScreen> {
             );
 
             if (!mounted) return;
-            // ignore: use_build_context_synchronously
             context.read<TaskProvider>().fetchTasks();
           },
           icon: Icon(Icons.add, color: Colors.white, size: 33),

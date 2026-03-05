@@ -5,4 +5,5 @@ import 'package:gestion_tareas/tasks/domain/entities/tasks.dart';
 abstract class TaskRepository {
   Future<List<Tasks>> getTasks();
   Future<dynamic> addTask(List<TasksDetailModel> tasks);
+  Future<dynamic> deleteTask(int idtasks);
 }
