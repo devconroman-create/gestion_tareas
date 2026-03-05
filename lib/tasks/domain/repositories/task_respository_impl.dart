@@ -1,9 +1,9 @@
 import 'dart:convert';
 
-import 'package:gestion_tareas/src/data/models/task_model.dart';
-import 'package:gestion_tareas/src/domain/entities/tasks.dart';
+import 'package:gestion_tareas/tasks/data/models/task_model.dart';
+import 'package:gestion_tareas/tasks/domain/entities/tasks.dart';
 import 'package:http/http.dart' as http;
-import 'package:gestion_tareas/src/domain/repositories/task_repository.dart';
+import 'package:gestion_tareas/tasks/domain/repositories/task_repository.dart';
 
 class TaskRespositoryImpl implements TaskRepository {
   final http.Client client;
@@ -22,6 +22,21 @@ class TaskRespositoryImpl implements TaskRepository {
     String tasksPath = "/vdev/tasks-challenge/tasks";
 
     final uri = Uri.https(baseUrl, tasksPath, {"token": "lgrsflutterdev2026"});
+
+    final response = await client.get(uri, headers: _headers);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.map((e) => TasksModel.fromJson(e)).toList();
+    }
+    throw Exception("Error al obtener tareas");
+  }
+
+  @override
+  Future<List<Tasks>> addTask() async {
+    String tasksPath = "/vdev/tasks-challenge/tasks";
+
+    final uri = Uri.https(baseUrl, tasksPath);
 
     final response = await client.get(uri, headers: _headers);
 

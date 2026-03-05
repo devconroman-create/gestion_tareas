@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:gestion_tareas/src/presentation/providers/task_provider.dart';
+import 'package:gestion_tareas/tasks/presentation/providers/task_form_privider.dart'
+    show TaskFormProvider;
+import 'package:gestion_tareas/tasks/presentation/providers/task_provider.dart';
 import 'package:provider/provider.dart';
 
-import 'package:gestion_tareas/src/routes/routes.dart';
+import 'package:gestion_tareas/tasks/routes/routes.dart';
 
 import 'injection_container.dart' as i_container;
 
@@ -21,6 +23,9 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(
           create: (_) => i_container.getIt<TaskProvider>(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => i_container.getIt<TaskFormProvider>(),
         ),
       ],
       child: MaterialApp(

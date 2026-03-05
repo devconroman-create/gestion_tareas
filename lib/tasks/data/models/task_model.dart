@@ -1,4 +1,4 @@
-import 'package:gestion_tareas/src/domain/entities/tasks.dart';
+import 'package:gestion_tareas/tasks/domain/entities/tasks.dart';
 
 class TasksModel extends Tasks {
   TasksModel({

@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:gestion_tareas/src/domain/entities/tasks.dart';
-import 'package:gestion_tareas/src/domain/use_case/get_tasks.dart';
+import 'package:gestion_tareas/tasks/domain/entities/tasks.dart';
+import 'package:gestion_tareas/tasks/domain/use_case/get_tasks.dart';
 
 enum TaskState { initial, loading, succes, error }
 
