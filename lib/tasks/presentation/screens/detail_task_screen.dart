@@ -96,7 +96,6 @@ class _DetailTaskScreenState extends State<DetailTaskScreen> {
                     Switch(
                       value: isCompleted,
                       onChanged: (value) {
-                        setState(() {});
                         isCompleted = value;
                       },
                       activeThumbColor: Colors.lightBlue,
