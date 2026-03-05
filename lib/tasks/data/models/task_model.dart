@@ -12,7 +12,7 @@ class TasksModel extends Tasks {
     id: json["id"] as int,
     title: json["title"] as String,
     isCompleted: json["is_completed"] as int,
-    dueDate: json["due_date"] as String,
+    dueDate: json["due_date"] != null ? json["due_date"] as String : null,
   );
 
   Map<String, dynamic> toJson() => {

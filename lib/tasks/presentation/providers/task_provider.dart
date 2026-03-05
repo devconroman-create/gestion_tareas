@@ -1,13 +1,17 @@
 import 'package:flutter/foundation.dart';
+import 'package:gestion_tareas/tasks/data/models/task_detail_model.dart'
+    show TasksDetailModel;
 import 'package:gestion_tareas/tasks/domain/entities/tasks.dart';
+import 'package:gestion_tareas/tasks/domain/use_case/add_tasks.dart';
 import 'package:gestion_tareas/tasks/domain/use_case/get_tasks.dart';
 
 enum TaskState { initial, loading, succes, error }
 
 class TaskProvider extends ChangeNotifier {
   final GetTasks getTasks;
+  final AddTasks addTasks;
 
-  TaskProvider({required this.getTasks});
+  TaskProvider({required this.getTasks, required this.addTasks});
 
   TaskState _state = TaskState.initial;
   List<Tasks> _tasks = [];
@@ -26,6 +30,17 @@ class TaskProvider extends ChangeNotifier {
     } catch (e) {
       debugPrint("Error al obtener tareas: ${e.toString()}");
       _setError("Error al obtener tareas");
+    }
+  }
+
+  Future<dynamic> createTask(List<TasksDetailModel> tasks) async {
+    _setState(TaskState.loading);
+    try {
+      await addTasks(tasks);
+      _setState(TaskState.succes);
+    } catch (e) {
+      debugPrint("Error al agregar tarea: ${e.toString()}");
+      _setError("Error al agregar tareas");
     }
   }
 

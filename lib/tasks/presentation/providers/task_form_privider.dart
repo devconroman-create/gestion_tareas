@@ -16,7 +16,13 @@ class TaskFormProvider extends ChangeNotifier {
 
   void updateTitle(String? value) {
     title = value?.trim() ?? '';
-    titleError = title.isEmpty ? 'El título es obligatorio' : null;
+    if (title.isEmpty) {
+      titleError = 'Title is required';
+    } else if (title.length < 3) {
+      titleError = 'Title must be at least 3 characters';
+    } else {
+      titleError = null;
+    }
     notifyListeners();
   }
 
@@ -29,6 +35,17 @@ class TaskFormProvider extends ChangeNotifier {
     if (value == null) {
       dueDate = '';
       dueDateError = null;
+      notifyListeners();
+      return;
+    }
+
+    final today = DateTime.now();
+    final todayDate = DateTime(today.year, today.month, today.day);
+    final selectedDate = DateTime(value.year, value.month, value.day);
+
+    if (selectedDate.isBefore(todayDate)) {
+      dueDate = '';
+      dueDateError = "Date cannot be earlier than today";
     } else {
       dueDate =
           "${value.year}-${value.month.toString().padLeft(2, '0')}-${value.day.toString().padLeft(2, '0')}";
@@ -39,15 +56,25 @@ class TaskFormProvider extends ChangeNotifier {
   }
 
   void updateComments(String? value) {
-    comments = value ?? '';
+    comments = value?.trim() ?? '';
+    if (comments.isEmpty) {
+      commentsError = null;
+    } else if (comments.length > 60) {
+      commentsError = "Maximum 60 characters";
+    } else {
+      commentsError = null;
+    }
+
     notifyListeners();
   }
 
   void updateDescription(String? value) {
     description = value ?? '';
 
-    if (description.isNotEmpty && description.length < 5) {
-      descriptionError = 'Mínimo 5 caracteres';
+    if (description.isNotEmpty && description.length < 20) {
+      descriptionError = 'Minimum 20 characters';
+    } else if (description.isNotEmpty && description.length > 200) {
+      descriptionError = 'Maximum 200 characters';
     } else {
       descriptionError = null;
     }
@@ -57,23 +84,26 @@ class TaskFormProvider extends ChangeNotifier {
 
   void updateTags(String? value) {
     tags = value ?? '';
-    notifyListeners();
-  }
-
-  String? _validateDate(String value) {
-    try {
-      DateTime.parse(value);
-      return "";
-    } catch (_) {
-      return 'Formato de fecha inválido (yyyy-mm-dd)';
+    if (tags.isNotEmpty && tags.length > 20) {
+      tagsError = 'Maximum 20 characters';
+    } else {
+      tagsError = null;
     }
+    notifyListeners();
   }
 
   bool get isValidForm {
     updateTitle(title);
+    updateComments(comments);
     updateDescription(description);
-
-    return [titleError, descriptionError].every((e) => e == null);
+    updateTags(tags);
+    return [
+      titleError,
+      commentsError,
+      descriptionError,
+      tagsError,
+      dueDateError,
+    ].every((e) => e == null);
   }
 
   void resetForm() {
@@ -86,6 +116,8 @@ class TaskFormProvider extends ChangeNotifier {
     titleError = null;
     dueDateError = null;
     descriptionError = null;
+    commentsError = null;
+    tagsError = null;
 
     notifyListeners();
   }

@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:gestion_tareas/tasks/data/models/task_detail_model.dart';
 import 'package:gestion_tareas/tasks/presentation/providers/task_form_privider.dart'
     show TaskFormProvider;
+import 'package:gestion_tareas/tasks/presentation/providers/task_provider.dart'
+    show TaskProvider, TaskState;
+import 'package:gestion_tareas/tasks/presentation/widgets/new_task_form_widget.dart'
+    show NewTaskFormWidget;
 import 'package:provider/provider.dart';
 
 class NewTaskFormScreen extends StatefulWidget {
@@ -48,28 +53,28 @@ class _NewTaskFormScreenState extends State<NewTaskFormScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    _textField(
+                    NewTaskFormWidget().textField(
                       provider: provider.title,
                       icon: Icons.title,
                       hintText: "Title",
                       errorText: provider.titleError,
                       onChanged: provider.updateTitle,
                     ),
-                    _textField(
+                    NewTaskFormWidget().textField(
                       provider: provider.description,
                       icon: Icons.comment,
                       hintText: "Comments",
                       errorText: provider.commentsError,
                       onChanged: provider.updateComments,
                     ),
-                    _textField(
+                    NewTaskFormWidget().textField(
                       provider: provider.title,
                       icon: Icons.task,
                       hintText: "Description",
                       errorText: provider.descriptionError,
                       onChanged: provider.updateDescription,
                     ),
-                    _textField(
+                    NewTaskFormWidget().textField(
                       provider: provider.description,
                       icon: Icons.edit_note,
                       hintText: "Tag",
@@ -94,12 +99,12 @@ class _NewTaskFormScreenState extends State<NewTaskFormScreen> {
                         ),
                         SizedBox(
                           width: size.width * 0.46,
-                          child: _textField(
+                          child: NewTaskFormWidget().textField(
                             provider: provider.description,
                             icon: Icons.calendar_today,
                             hintText: "Date",
                             controller: dueDateController,
-
+                            errorText: provider.dueDateError,
                             onTap: () async {
                               FocusScope.of(context).unfocus();
                               await Future.delayed(
@@ -122,86 +127,153 @@ class _NewTaskFormScreenState extends State<NewTaskFormScreen> {
                       ],
                     ),
                     SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        SizedBox(
-                          width: size.width * 0.35,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.grey,
-                            ),
-                            onPressed: () {
-                              if (!mounted) return;
-                              Navigator.pop(context);
-                            },
-                            child: const Text(
-                              "Cancel",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
+                    Consumer<TaskProvider>(
+                      builder: (context, taskProvider, child) {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            SizedBox(
+                              width: size.width * 0.35,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.grey,
+                                ),
+                                onPressed: taskProvider.isLoading
+                                    ? null
+                                    : () {
+                                        provider.resetForm();
+                                        if (!mounted) return;
+                                        Navigator.pop(context);
+                                      },
+                                child: const Text(
+                                  "Cancel",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: size.width * 0.35,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.lightBlue,
-                            ),
-                            onPressed: () {},
-                            child: const Text(
-                              "Save",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
+                            SizedBox(
+                              width: size.width * 0.35,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.lightBlue,
+                                ),
+                                onPressed: taskProvider.isLoading
+                                    ? null
+                                    : () async {
+                                        final scaffoldMessenger =
+                                            ScaffoldMessenger.of(context);
+                                        if (provider.isValidForm) {
+                                          final navigator = Navigator.of(
+                                            context,
+                                          );
+
+                                          List<TasksDetailModel> listTask = [];
+                                          listTask.add(
+                                            TasksDetailModel(
+                                              token: "lgrsflutterdev2026",
+                                              title: provider.title,
+                                              isCompleted:
+                                                  (provider.isCompleted == true)
+                                                  ? 1
+                                                  : 0,
+                                              description: provider.description,
+                                              comments: provider.comments,
+                                              tags: provider.tags,
+                                              dueDate: provider.dueDateError,
+                                            ),
+                                          );
+
+                                          await taskProvider.addTasks(listTask);
+
+                                          if (!mounted) return;
+
+                                          if (taskProvider.state ==
+                                              TaskState.error) {
+                                            scaffoldMessenger.showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  taskProvider.errorMessage ??
+                                                      'Unexpected error',
+                                                ),
+                                                backgroundColor: Colors.red,
+                                              ),
+                                            );
+                                            return;
+                                          }
+
+                                          scaffoldMessenger.showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                'Added successfully',
+                                              ),
+                                              backgroundColor:
+                                                  Colors.lightGreen,
+                                              duration: Duration(seconds: 2),
+                                            ),
+                                          );
+
+                                          await Future.delayed(
+                                            const Duration(seconds: 2),
+                                          );
+                                          if (!mounted) return;
+
+                                          provider.resetForm();
+                                          navigator.pop();
+                                        } else {
+                                          scaffoldMessenger.showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                'Complete all fields',
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              backgroundColor:
+                                                  const Color.fromARGB(
+                                                    255,
+                                                    201,
+                                                    185,
+                                                    44,
+                                                  ),
+                                            ),
+                                          );
+                                        }
+                                      },
+                                child: taskProvider.isLoading
+                                    ? Container(
+                                        width: 20,
+                                        height: 20,
+                                        color: Colors.red,
+                                        child: CircularProgressIndicator(
+                                          color: Colors.white,
+                                          strokeWidth: 4,
+                                        ),
+                                      )
+                                    : Text(
+                                        "Save",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                               ),
                             ),
-                          ),
-                        ),
-                      ],
+                          ],
+                        );
+                      },
                     ),
                   ],
                 ),
               ),
             );
           },
-        ),
-      ),
-    );
-  }
-
-  Widget _textField({
-    required dynamic provider,
-    required String hintText,
-    TextEditingController? controller,
-    String? errorText,
-    required IconData icon,
-    ValueChanged<String?>? onChanged,
-    VoidCallback? onTap,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: TextField(
-        readOnly: hintText == "Date",
-        controller: controller,
-        style: const TextStyle(fontSize: 14),
-        onChanged: onChanged,
-        onTap: onTap,
-        decoration: InputDecoration(
-          prefixIcon: Icon(icon),
-          hintText: hintText,
-
-          errorText: errorText,
-          fillColor: Colors.white,
-          filled: true,
-          border: OutlineInputBorder(
-            borderSide: const BorderSide(color: Colors.blue, width: 2),
-            borderRadius: BorderRadius.circular(10),
-          ),
         ),
       ),
     );

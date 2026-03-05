@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gestion_tareas/tasks/routes/routes.dart';
+import 'package:gestion_tareas/tasks/presentation/screens/new_task_form_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:gestion_tareas/tasks/presentation/providers/task_provider.dart';
 
@@ -100,8 +100,15 @@ class _TaskListScreenState extends State<TaskListScreen> {
         ),
 
         child: IconButton(
-          onPressed: () {
-            Navigator.pushNamed(context, AppRoutes.newTaskFormScreen);
+          onPressed: () async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const NewTaskFormScreen()),
+            );
+
+            if (!mounted) return;
+            // ignore: use_build_context_synchronously
+            context.read<TaskProvider>().fetchTasks();
           },
           icon: Icon(Icons.add, color: Colors.white, size: 33),
         ),

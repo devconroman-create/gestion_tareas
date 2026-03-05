@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:gestion_tareas/tasks/data/models/task_detail_model.dart'
+    show TasksDetailModel;
 import 'package:gestion_tareas/tasks/data/models/task_model.dart';
 import 'package:gestion_tareas/tasks/domain/entities/tasks.dart';
 import 'package:http/http.dart' as http;
@@ -33,17 +35,19 @@ class TaskRespositoryImpl implements TaskRepository {
   }
 
   @override
-  Future<List<Tasks>> addTask() async {
+  Future<dynamic> addTask(List<TasksDetailModel> tasks) async {
     String tasksPath = "/vdev/tasks-challenge/tasks";
 
     final uri = Uri.https(baseUrl, tasksPath);
+    final response = await client.post(
+      uri,
+      headers: _headers,
+      body: jsonEncode(tasks.first.toJson()),
+    );
 
-    final response = await client.get(uri, headers: _headers);
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map((e) => TasksModel.fromJson(e)).toList();
+    if (response.statusCode == 201) {
+      return response.body;
     }
-    throw Exception("Error al obtener tareas");
+    throw Exception("Error al agregar tareas");
   }
 }
