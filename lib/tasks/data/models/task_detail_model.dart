@@ -1,31 +1,31 @@
-class TasksDetailModel {
-  final String token;
-  final String title;
-  final int isCompleted;
-  final String? dueDate;
-  final String? comments;
-  final String? description;
-  final String? tags;
+import 'package:gestion_tareas/tasks/domain/entities/task_detail.dart';
 
+class TasksDetailModel extends TaskDetail {
   TasksDetailModel({
-    required this.token,
-    required this.title,
-    required this.isCompleted,
-    this.dueDate,
-    this.comments,
-    this.description,
-    this.tags,
+    super.id,
+    required super.title,
+    required super.isCompleted,
+    super.dueDate,
+    super.comments,
+    super.description,
+    super.tags,
+    super.token,
+    super.createdAt,
+    super.updatedAt,
   });
 
   factory TasksDetailModel.fromJson(Map<String, dynamic> json) {
     return TasksDetailModel(
-      token: json["token"],
-      title: json["title"],
-      isCompleted: json["is_completed"],
-      dueDate: json["due_date"] as String?,
-      comments: json["comments"] as String?,
-      description: json["description"] as String?,
-      tags: json["tags"] as String?,
+      id: json["id"].toString(),
+      title: json["title"] as String,
+      isCompleted: json["is_completed"] as int,
+      dueDate: json["due_date"]?.toString(),
+      comments: json["comments"]?.toString(),
+      description: json["description"]?.toString(),
+      tags: json["tags"]?.toString(),
+      token: json["token"]?.toString(),
+      createdAt: json["created_at"]?.toString(),
+      updatedAt: json["updated_date"]?.toString(),
     );
   }
 

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:gestion_tareas/tasks/data/models/task_detail_model.dart'
     show TasksDetailModel;
 import 'package:gestion_tareas/tasks/data/models/task_model.dart';
+import 'package:gestion_tareas/tasks/domain/entities/task_detail.dart';
 import 'package:gestion_tareas/tasks/domain/entities/tasks.dart';
 import 'package:http/http.dart' as http;
 import 'package:gestion_tareas/tasks/domain/repositories/task_repository.dart';
@@ -63,5 +64,41 @@ class TaskRespositoryImpl implements TaskRepository {
       return response.body;
     }
     throw Exception("Error al eliminar tarea");
+  }
+
+  @override
+  Future<TaskDetail> getTasksById(int idTask) async {
+    String tasksPath = "/vdev/tasks-challenge/tasks/$idTask";
+
+    final uri = Uri.https(baseUrl, tasksPath, {"token": "lgrsflutterdev2026"});
+
+    final response = await client.get(uri, headers: _headers);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return TasksDetailModel.fromJson(data.first);
+    }
+    throw Exception("Error al obtener tarea en especifico");
+  }
+
+  @override
+  Future<dynamic> isCompletedTaskId(
+    int idtasks,
+    List<TasksDetailModel> tasks,
+  ) async {
+    String tasksPath = "/vdev/tasks-challenge/tasks/$idtasks";
+
+    final uri = Uri.https(baseUrl, tasksPath);
+
+    final response = await client.put(
+      uri,
+      headers: _headers,
+      body: jsonEncode(tasks.first.toJson()),
+    );
+
+    if (response.statusCode == 201) {
+      return response.body;
+    }
+    throw Exception("Error al actualizar estatud de tarea");
   }
 }

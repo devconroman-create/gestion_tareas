@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:gestion_tareas/tasks/presentation/screens/detail_task_screen.dart';
 import 'package:gestion_tareas/tasks/presentation/screens/new_task_form_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:gestion_tareas/tasks/presentation/providers/task_provider.dart';
@@ -49,33 +50,13 @@ class _TaskListScreenState extends State<TaskListScreen> {
           }
 
           if (provider.tasks.isEmpty) {
-            return Center(child: Text("No tienes tareas"));
+            return Center(child: Text("You have no tasks"));
           }
 
           return Column(
             children: [
+              SizedBox(height: 15),
               Flexible(
-                flex: 1,
-                child: Container(
-                  width: double.infinity,
-                  margin: EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black38,
-                        blurRadius: 8,
-                        spreadRadius: 1.5,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(height: 10),
-              Flexible(
-                flex: 4,
                 child: ListView.separated(
                   separatorBuilder: (context, index) => SizedBox(height: 10),
                   itemCount: provider.tasks.length,
@@ -94,27 +75,25 @@ class _TaskListScreenState extends State<TaskListScreen> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: ListTile(
-                        title: Text(task.title),
+                        title: Row(
+                          children: [
+                            Icon(
+                              size: 15,
+                              task.isCompleted == 1
+                                  ? Icons.check_circle
+                                  : Icons.radio_button_unchecked,
+                              color: task.isCompleted == 1
+                                  ? Colors.green
+                                  : Colors.grey,
+                            ),
+                            Text(task.title),
+                          ],
+                        ),
                         selectedColor: Colors.red,
                         focusColor: Colors.amber,
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            IconButton(
-                              icon: Icon(
-                                task.isCompleted == 1
-                                    ? Icons.check_circle
-                                    : Icons.radio_button_unchecked,
-                                color: task.isCompleted == 1
-                                    ? Colors.green
-                                    : Colors.grey,
-                              ),
-                              onPressed: () {},
-                            ),
-                            IconButton(
-                              onPressed: () {},
-                              icon: Icon(Icons.edit, color: Colors.blue),
-                            ),
                             IconButton(
                               onPressed: () async {
                                 showDialog(
@@ -150,8 +129,27 @@ class _TaskListScreenState extends State<TaskListScreen> {
                             ),
                           ],
                         ),
-                        onTap: () {
-                          print(task.id);
+                        onTap: () async {
+                          final taskProvider = context.read<TaskProvider>();
+
+                          /*await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => NewTaskFormScreen(
+                                isEdit: true,
+                                idTask: task.id,
+                              ),
+                            ),
+                          );*/
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => DetailTaskScreen(idTask: task.id),
+                            ),
+                          );
+
+                          if (!mounted) return;
+                          taskProvider.fetchTasks();
                         },
                       ),
                     );
@@ -172,7 +170,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
           onPressed: () async {
             await Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => const NewTaskFormScreen()),
+              MaterialPageRoute(builder: (_) => NewTaskFormScreen()),
             );
 
             if (!mounted) return;

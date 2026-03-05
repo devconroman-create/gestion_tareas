@@ -2,7 +2,9 @@ import 'package:gestion_tareas/tasks/domain/repositories/task_repository.dart';
 import 'package:gestion_tareas/tasks/domain/repositories/task_respository_impl.dart';
 import 'package:gestion_tareas/tasks/domain/use_case/add_tasks.dart';
 import 'package:gestion_tareas/tasks/domain/use_case/delete_tasks.dart';
+import 'package:gestion_tareas/tasks/domain/use_case/get_task_by_id.dart';
 import 'package:gestion_tareas/tasks/domain/use_case/get_tasks.dart';
+import 'package:gestion_tareas/tasks/domain/use_case/update_tasks.dart';
 import 'package:gestion_tareas/tasks/presentation/providers/task_form_privider.dart'
     show TaskFormProvider;
 import 'package:gestion_tareas/tasks/presentation/providers/task_provider.dart';
@@ -16,6 +18,8 @@ Future<void> init(GetIt getIt) async {
       getTasks: getIt(),
       addTasks: getIt(),
       deleteTasks: getIt(),
+      updateTasks: getIt(),
+      getTaskById: getIt(),
     ),
   );
   getIt.registerFactory(() => TaskFormProvider());
@@ -24,6 +28,8 @@ Future<void> init(GetIt getIt) async {
   getIt.registerLazySingleton(() => GetTasks(getIt()));
   getIt.registerLazySingleton(() => AddTasks(getIt()));
   getIt.registerLazySingleton(() => DeleteTasks(getIt()));
+  getIt.registerLazySingleton(() => UpdateTasks(getIt()));
+  getIt.registerLazySingleton(() => GetTaskById(getIt()));
 
   //*Repositorios
   getIt.registerLazySingleton<TaskRepository>(
